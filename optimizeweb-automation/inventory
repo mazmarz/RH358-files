@@ -1,0 +1,6 @@
+[lb_servers]
+servera.lab.example.com
+
+[web_servers]
+serverc.lab.example.com
+serverd.lab.example.com

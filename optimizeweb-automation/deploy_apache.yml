@@ -1,0 +1,33 @@
+---
+# Deploy the Apache HTTP Server and configure it to listen on port 8080.
+# The service can only be accessed from localhost.
+- name: Ensure Apache HTTP Server is deployed
+  hosts: web_servers
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: the httpd package is installed
+      yum:
+        name: httpd
+        state: present
+
+    - name: httpd is configured to listen on port 8080
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^Listen '
+        insertafter: '^#Listen '
+        line: Listen 8080
+      notify: restart httpd
+
+    - name: the httpd service is started and enabled
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted

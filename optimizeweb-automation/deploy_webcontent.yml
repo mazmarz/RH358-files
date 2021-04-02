@@ -1,0 +1,11 @@
+---
+- name: Ensure the web content is deployed
+  hosts: web_servers
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: the web content is deployed
+      copy:
+        content: "This is {{ inventory_hostname }}\n"
+        dest: /var/www/html/index.html

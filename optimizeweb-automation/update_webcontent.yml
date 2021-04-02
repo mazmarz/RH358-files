@@ -1,0 +1,44 @@
+---
+- name: Ensure new web content is deployed
+  hosts: web_servers
+  gather_facts: false
+  become: true
+  serial: 1
+
+  tasks:
+    - name: the web server is removed from service during the update
+      haproxy:
+        socket: ## FIXME ##
+        state: disabled
+        backend: ## FIXME ##
+        host: "{{ inventory_hostname }}"
+      delegate_to: servera.lab.example.com
+
+    - name: the new content is deployed
+      synchronize:
+        src: "new_web_content/{{ inventory_hostname }}/"
+        dest: /var/www/html
+        delete: true
+      notify: Varnish Cache is clean
+
+  post_tasks:
+    - name: Smoke Test - Ensure HTTP 200 OK
+      uri:
+        url: "http://localhost"
+        status_code: 200
+
+    # If the test fails, servers are not re-enabled
+    # in the load balancers, and the update process halts.
+    - name: the healthy web server is enabled in HAProxy
+      haproxy:
+        socket: ## FIXME ##
+        state: enabled
+        backend: ## FIXME ##
+        host: "{{ inventory_hostname }}"
+      delegate_to: servera.lab.example.com
+
+  handlers:
+    - name: Varnish Cache is clean
+      service:
+        name: varnish
+        state: restarted
