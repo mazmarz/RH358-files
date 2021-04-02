@@ -1,0 +1,8 @@
+[lb_servers]
+servera.lab.example.com
+
+[cache_servers]
+serverb.lab.example.com
+
+[web_servers]
+serverc.lab.example.com
