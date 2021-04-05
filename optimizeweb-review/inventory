@@ -1,3 +1,6 @@
+rh3 ansible_host=10.0.2.6
+
+
 [lb_servers]
 servera.lab.example.com
 

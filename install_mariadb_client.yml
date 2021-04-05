@@ -6,5 +6,5 @@
   tasks:
     - name: Install mariadb client package
       yum:
-        name: FIXME
+        name: mariadb
         state: present

@@ -1,0 +1,16 @@
+---
+- name: cleanup varnish and apache/nginx and haproxy
+  hosts: all
+  become: yes
+  tasks:
+
+  - name:
+    yum:
+      name: "{{ item }}"
+      state: absent
+    loop:
+    - varnish
+    - haproxy
+    - nginx
+    - httpd
+

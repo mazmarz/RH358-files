@@ -1,0 +1,30 @@
+---
+- hosts: rh3
+  become: 1
+  gather_facts: 0
+  tasks:
+
+  - name: install nginx
+    yum:
+      name: nginx
+      state: present
+
+  - name: fix config file
+    replace:
+      path: /etc/nginx/nginx.conf
+      regexp: '(^\s*listen)\s+80 (.*)'
+      replace: '\1 8080 \2'
+
+  - name: fix config file
+    replace:
+      path: /etc/nginx/nginx.conf
+      regexp: '(^\s*listen)\s+\[\:\:\]\:80 (.*)'
+      replace: '\1 [::]:8080 \2'
+
+  - name: enable server
+    service:
+      name: nginx
+      state: started
+      enabled: true
+      
+

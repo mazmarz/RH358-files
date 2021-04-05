@@ -1,6 +1,6 @@
 ---
 - name: Ensure HAProxy is deployed
-  hosts: servera.lab.example.com
+  hosts: rh1
   gather_facts: false
   become: true
 
@@ -45,10 +45,13 @@
 
     - name: the https firewall service is opened
       firewalld:
-        service: https
+        service: "{{ item }}"
         state: enabled
         immediate: yes
         permanent: yes
+      loop:
+      - http
+      - https
 
   handlers:
     - name: restart haproxy

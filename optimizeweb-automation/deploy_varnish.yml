@@ -19,9 +19,7 @@
       copy:
         src: files/port.conf
         dest: /etc/systemd/system/varnish.service.d/port.conf
-      notify:
-        - reload systemd
-        - restart varnish
+      notify: reload varnish
 
     - name: the varnish service is started and enabled
       service:
@@ -40,8 +38,10 @@
     - name: reload systemd
       systemd:
         daemon_reload: yes
+      listen: reload varnish
 
     - name: restart varnish
       service:
         name: varnish
         state: restarted
+      listen: reload varnish

@@ -2,7 +2,7 @@
 # Deploy the Apache HTTP Server and configure it to listen on port 8080.
 # The service can only be accessed from localhost.
 - name: Ensure Apache HTTP Server is deployed
-  hosts: web_servers
+  hosts: rh2
   gather_facts: false
   become: true
 

@@ -5,27 +5,42 @@
 
   tasks:
     - name: Make sure inventory database exists
-      FIXME:
-        name: FIXME
-        state: FIXME
+      mysql_db:
+        login_user: root
+        login_password: "{{ pw }}"
+        name: inventory
+        state: absent
+
+    - name: Make sure inventory database exists
+      mysql_db:
+        login_user: root
+        login_password: "{{ pw }}"
+        name: inventory
+        state: present
       register: inventory_present
+
+    - name: debug
+      debug:
+        var: inventory_present
 
     - name: Is inventory database backup present?
       stat:
-        path: /srv/inventory-database.sql
+        path: /tmp/inventory-database.sql
       register: inventory_bkup
 
     - name: Copy database backup file to host if not present
       copy:
         src: files/inventory-database.sql
-        dest: /srv
+        dest: /tmp
       when:
         - inventory_present['changed'] == true
-        - inventory_bkup['stat']['exists'] == false
+        - inventory_bkup['stat']['exists'] == true
 
     - name: Restore inventory backup data
-      FIXME:
-        name: FIXME
-        state: FIXME
-        target: /srv/inventory-database.sql
+      mysql_db:
+        login_user: root
+        login_password: "{{ pw }}"
+        name: inventory
+        state: import
+        target: /tmp/inventory-database.sql
       when: inventory_present['changed'] == true

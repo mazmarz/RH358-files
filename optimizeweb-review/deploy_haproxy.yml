@@ -1,6 +1,6 @@
 ---
 - name: Ensure HAProxy is deployed
-  hosts: servera.lab.example.com
+  hosts: rh3
   gather_facts: false
   become: true
 
@@ -18,20 +18,26 @@
         mode: '700'
 
     - name: the SSL file for HTTPS termination is deployed
-      copy:
+      assemble:
         # You need to create that file from the
         # servera.lab.example.com.{crt,key} files under the
         # files/ directory
-        src: files/haproxy.pem
+        src: files
+        remote_src: false
+        regexp: "^servera\\.lab\\.example\\.com\\.(crt|key)$"
         dest: /etc/pki/haproxy/haproxy.pem
-      notify: restart haproxy
 
     - name: the HAProxy configuration file is deployed
       copy:
         # You need to complete that configuration file
         src: files/haproxy.cfg
         dest: /etc/haproxy/haproxy.cfg
-      notify: restart haproxy
+
+
+    - name: check haproxy
+      command: 
+        cmd: haproxy -c -f /etc/haproxy/haproxy.cfg
+      register: test_haproxy
 
     - name: the haproxy service is started and enabled
       service:

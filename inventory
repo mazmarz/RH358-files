@@ -1,8 +1,13 @@
+rh2 ansible_host=10.0.2.4
+rh3 ansible_host=10.0.2.6
+rh1 ansible_host=10.0.2.5
+
+
 [control_node]
 workstation.lab.example.com
 
 [db_servers]
-servera.lab.example.com
+rh3
 
 [db_clients]
-serverb.lab.example.com
+rh2

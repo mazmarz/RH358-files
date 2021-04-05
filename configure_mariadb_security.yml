@@ -5,24 +5,33 @@
 
   tasks:
     - name: Assign password to MariaDB root user
-      FIXME:
+      mysql_user:
+        login_unix_socket: /var/lib/mysql/mysql.sock
         name: root
         host_all: yes
-        update_password: FIXME
+        login_user: root
+        login_password: "{{ pw }}"
+        update_password: always
         password: "{{ pw }}"
 
     - name: Authentication credentials copied to root home directory
-      FIXME:
+      copy:
         src: files/my.cnf
-        dest: FIXME
+        dest: /etc/my.cnf
 
     - name: Remove anonymous user accounts
       mysql_user:
-        name: FIXME
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        login_user: root
+        login_password: "{{ pw }}"
+        name: ''
         host_all: yes
-        state: FIXME
+        state: absent
 
     - name: Remove test database
-      FIXME:
-        name: FIXME
-        state: FIXME
+      mysql_db:
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        login_user: root
+        login_password: "{{ pw }}"
+        name: test
+        state: absent

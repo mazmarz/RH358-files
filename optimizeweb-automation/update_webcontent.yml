@@ -8,18 +8,28 @@
   tasks:
     - name: the web server is removed from service during the update
       haproxy:
-        socket: ## FIXME ##
+        socket: /var/lib/haproxy/stats
         state: disabled
-        backend: ## FIXME ##
+        backend: web-farm
         host: "{{ inventory_hostname }}"
-      delegate_to: servera.lab.example.com
+      delegate_to: rh1
 
-    - name: the new content is deployed
-      synchronize:
-        src: "new_web_content/{{ inventory_hostname }}/"
-        dest: /var/www/html
-        delete: true
+    - name: update html file
+      copy:
+        content: |
+          host {{ inventory_hostname }} v3
+        dest: "{{ www_path }}"
       notify: Varnish Cache is clean
+
+    - name: pause
+      pause:
+        seconds: 5
+##    - name: the new content is deployed
+#      synchronize:
+#        src: "new_web_content/{{ inventory_hostname }}/"
+#        dest: "{{ www_path }}"
+#        delete: true
+#      notify: Varnish Cache is clean
 
   post_tasks:
     - name: Smoke Test - Ensure HTTP 200 OK
@@ -31,11 +41,11 @@
     # in the load balancers, and the update process halts.
     - name: the healthy web server is enabled in HAProxy
       haproxy:
-        socket: ## FIXME ##
+        socket: /var/lib/haproxy/stats
         state: enabled
-        backend: ## FIXME ##
+        backend: web-farm
         host: "{{ inventory_hostname }}"
-      delegate_to: servera.lab.example.com
+      delegate_to: rh1
 
   handlers:
     - name: Varnish Cache is clean
