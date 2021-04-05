@@ -1,0 +1,54 @@
+---
+- name: Share a directory with SMB
+  hosts: serverd.lab.example.com
+  become: true
+  vars_files:
+    - smb_vars.yml
+
+  tasks:
+    - name: the package for a Samba server is installed
+      #FIXME: install the required package for a Samba server
+
+    - name: the Linux user for Samba mount exists
+      #FIXME: create the sambamount system user account as follows:
+      #       - Prevent login
+      #       - No home directory
+
+    - name: the Samba user for Samba mount exists
+      #FIXME: add the sambamount user to the Samba database.
+      #       Use redhat for the password.
+
+    - name: the directory exists
+      #FIXME: create the /srv/developers directory as follows:
+      #             Directory ownership: sambamount
+      #       Directory group ownership: developers
+      #                    Owner access: read
+      #                    Group access: read/write
+      #              Other users access: none
+      #       All contents created in the directory must automatically
+      #       belong to the developers group.
+      #       Set the correct SELinux context type.
+
+    - name: the directory is shared
+      #FIXME: declare the /srv/developers directory as an SMB share
+      #       in the Samba configuration file as follows:
+      #                          Work group: MYWORKGROUP
+      #        SMB minimum protocol version: 3
+      #                  Traffic encryption: Always required
+      #                          Share name: devdata
+      #                   Access allowed to: sambamount and the
+      #                                      members of the developers group
+      #                   Read/write access: Members of the developers group
+      #       For your convenience, the default Samba configuration file is
+      #       available under the templates/ directory.
+      notify: reload smb
+
+    - name: the SMB service is started and enabled
+      #FIXME: the service must be started and enabled
+
+    - name: the firewall is opened for SMB
+      #FIXME: configure the firewall to allow SMB traffic
+
+  handlers:
+    - name: reload smb
+      #FIXME: reload the SMB service

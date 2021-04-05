@@ -1,0 +1,3 @@
+{{ shared_dir }}{% for host in groups['clients'] %}
+ {{ host }}(rw)
+{%- endfor %}

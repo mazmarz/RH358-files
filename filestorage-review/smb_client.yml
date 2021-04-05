@@ -1,0 +1,23 @@
+---
+- name: Access an SMB share
+  hosts: servera.lab.example.com
+  become: true
+  vars_files:
+   - smb_vars.yml
+
+  tasks:
+    - name: the package to mount SMB shares is installed
+      #FIXME: install the required package to mount SMB shares
+
+    - name: the credential file exists
+      #FIXME: create the /etc/samba/creds.txt credential file for the
+      #       multiuser mount option.
+      #       Use the sambamount user account with redhat for
+      #       the password.
+
+    - name: the SMB share is mounted
+      #FIXME: persistently mount the devdata SMB share from
+      #       serverd.lab.example.com into the /devs_data
+      #       directory.
+      #       Use the credential file, the multiuser option, and activate
+      #       traffic encryption.

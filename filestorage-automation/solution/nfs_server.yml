@@ -1,0 +1,48 @@
+---
+- name: Export a directory using NFS
+  hosts: serverd.lab.example.com
+  become: true
+  vars:
+    shared_dir: /nfsshare
+
+  tasks:
+    - name: the nfs-utils package is installed
+      yum:
+        name: nfs-utils
+        state: present
+
+    - name: the directory exists
+      file:
+        path: "{{ shared_dir }}"
+        owner: student
+        group: root
+        mode: '0755'
+        state: directory
+
+    - name: the directory is exported
+      template:
+        src: templates/share.exports.j2
+        dest: /etc/exports.d/share.exports
+        owner: root
+        group: root
+        mode: '0644'
+      notify: reload exports
+
+    - name: the nfs-server service is started and enabled
+      service:
+        name: nfs-server
+        state: started
+        enabled: yes
+
+    - name: the nfs firewall service is opened
+      firewalld:
+        service: nfs
+        state: enabled
+        immediate: yes
+        permanent: yes
+
+  handlers:
+    - name: reload exports
+      service:
+        name: nfs-server
+        state: reloaded

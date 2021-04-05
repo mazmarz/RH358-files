@@ -1,0 +1,20 @@
+---
+- name: Access an NFS export
+  hosts: servera.lab.example.com
+  become: true
+  vars:
+    shared_dir: /nfsshare
+    mount_point: /datanfs
+
+  tasks:
+    - name: the nfs-utils package is installed
+      yum:
+        name: nfs-utils
+        state: present
+
+    - name: the NFS export is mounted and in /etc/fstab
+      mount:
+        path: "{{ mount_point }}"
+        src: serverd.lab.example.com:{{ shared_dir }}
+        state: mounted
+        fstype: nfs

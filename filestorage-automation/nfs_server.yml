@@ -1,0 +1,38 @@
+---
+- name: Export a directory using NFS
+  hosts: serverd.lab.example.com
+  become: true
+  vars:
+    shared_dir: /nfsshare
+
+  tasks:
+    - name: the nfs-utils package is installed
+      #FIXME: see "ansible-doc yum" for some examples
+
+    - name: the directory exists
+      file:
+        path: "{{ shared_dir }}"
+        owner: student
+        group: root
+        mode: '0755'
+        state: directory
+
+    - name: the directory is exported
+      #FIXME: see "ansible-doc template" for some examples.
+      #       Deploy the templates/share.exports.j2 template file
+      #       to /etc/exports.d/share.exports on serverd.
+      #       The file should be owned by the root user and the
+      #       root group, and have a mode of '0644'
+      notify: reload exports
+
+    - name: the nfs-server service is started and enabled
+      #FIXME: see "ansible-doc service" for some examples
+
+    - name: the nfs firewall service is opened
+      #FIXME: see "ansible-doc firewalld" for some examples
+
+  handlers:
+    - name: reload exports
+      service:
+        name: nfs-server
+        state: reloaded

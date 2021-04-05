@@ -1,0 +1,10 @@
+---
+shared_dir: /srv/developers
+share_name: devdata
+mount_point: /devs_data
+
+# User account for mounting the share
+samba_usermount: sambamount
+samba_passmount: redhat
+
+allowed_group: developers

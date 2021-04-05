@@ -1,0 +1,36 @@
+---
+- name: Share a directory with NFS
+  hosts: serverd.lab.example.com
+  become: true
+  vars:
+    shared_dir: /srv/operators
+
+  tasks:
+    - name: the package for NFS server is installed
+      #FIXME: install the required package for an NFS server
+
+    - name: the directory exists
+      #FIXME: create the {{ shared_dir }} directory as follows:
+      #             Directory ownership: root
+      #       Directory group ownership: operators
+      #                    Group access: read/write
+      #              Other users access: none
+      #       All contents created in the directory must automatically
+      #       belong to the operators group.
+
+    - name: the directory is shared
+      #FIXME: declare the {{ shared_dir }} directory as an NFS share.
+      #       Only servera.lab.example.com must be able to access the share.
+      #       servera has read/write access to the share.
+      #       The root user on servera must have no access to the share.
+      notify: reload exports
+
+    - name: NFS is started and enabled
+      #FIXME: the service must be started and enabled
+
+    - name: the firewall is opened for NFS
+      #FIXME: configure the firewall to allow NFS traffic
+
+  handlers:
+    - name: reload exports
+      #FIXME: reload the NFS service

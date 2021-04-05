@@ -1,0 +1,78 @@
+---
+- name: Share a directory with SMB
+  hosts: serverd.lab.example.com
+  become: true
+  vars_files:
+    - smb_vars.yml
+
+  tasks:
+    - name: the samba package is installed
+      #FIXME: see "ansible-doc yum" for some examples
+
+    # Creating the Linux and Samba user for the multiuser mount.
+    # That user is only used to mount the share.
+
+    - name: the Linux user for Samba mount exists
+      user:
+        name: "{{ samba_usermount }}"
+        shell: /sbin/nologin
+        create_home: no
+        system: yes
+
+    - name: the Samba user for Samba mount exists
+      command: smbpasswd -s -a {{ samba_usermount }}
+      args:
+        stdin: "{{ samba_passmount }}\n{{ samba_passmount }}"
+
+    # Group and users with write access to the share
+
+    - name: the Linux group exists
+      group:
+        name: "{{ allowed_group }}"
+        system: yes
+
+    - name: the Linux users exist for Samba users
+      user:
+        name: "{{ item['name'] }}"
+        shell: /sbin/nologin
+        groups:
+          - "{{ allowed_group }}"
+      loop: "{{ samba_users }}"
+      no_log: true
+
+    - name: the Samba users exist
+      command: smbpasswd -s -a {{ item['name'] }}
+      args:
+        stdin: "{{ item['password'] }}\n{{ item['password'] }}"
+      loop: "{{ samba_users }}"
+      no_log: true
+
+    - name: the directory exists
+      file:
+        path: "{{ shared_dir }}"
+        owner: root
+        group: "{{ allowed_group }}"
+        mode: '2775'
+        state: directory
+        setype: samba_share_t
+
+    - name: the directory is shared
+      template:
+        #FIXME: see "ansible-doc template" for some examples.
+        #    Deploy the templates/smb.conf.j2 template file
+        #    to /etc/samba/smb.conf on serverd.
+        #    The file should be owned by the root user and the
+        #    root group, and have a mode of '0644'
+      notify: reload smb
+
+    - name: the smb service is started and enabled
+      #FIXME: see "ansible-doc service" for some examples
+
+    - name: the samba firewall service is opened
+      #FIXME: see "ansible-doc firewalld" for some examples
+
+  handlers:
+    - name: reload smb
+      service:
+        name: smb
+        state: reloaded

@@ -1,0 +1,12 @@
+[global]
+        workgroup = SAMBA
+        security = user
+
+        passdb backend = tdbsam
+
+        smb encrypt = required
+        server min protocol = SMB3
+
+[{{ share_name }}]
+        path = {{ shared_dir }}
+        write list = @{{ allowed_group }}
