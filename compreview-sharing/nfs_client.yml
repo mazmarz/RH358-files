@@ -1,0 +1,22 @@
+---
+- name: Access an NFS share
+  hosts: servera.lab.example.com
+  become: true
+  vars:
+    shared_dir: /srv/operators
+    mount_point: /operators_data
+
+  tasks:
+    - name: the package for NFS client is installed
+      yum:
+        name: #FIXME: install the required package for an NFS client
+        state: present
+
+    - name: the NFS share is mounted and in /etc/fstab
+      mount:
+        #FIXME: persistently mount {{ shared_dir }} from serverc.lab.example.com
+        #       into the {{ mount_point }} directory
+        path: #FIXME#
+        src: #FIXME#
+        state: mounted
+        fstype: #FIXME#

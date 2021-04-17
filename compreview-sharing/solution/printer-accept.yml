@@ -1,0 +1,17 @@
+---
+- name: Accept print jobs
+  hosts: servera.lab.example.com
+  become: true
+  vars:
+    queue_name: "office-printer"
+
+  tasks:
+    - name: check if print queue already exists
+      command: lpstat -p "{{ queue_name }}"
+      register: cmdout
+      ignore_errors: true
+      changed_when: false
+
+    - name: print jobs are accepted
+      command: cupsaccept "{{ queue_name }}"
+      when: cmdout.rc == 0

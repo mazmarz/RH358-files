@@ -1,0 +1,12 @@
+---
+shared_dir: /srv/managers
+share_name: managerdata
+mount_point: /managers_reports
+
+# User account for mounting the share
+samba_usermount: sambamount
+samba_passmount: redhat
+
+allowed_group: managers
+samba_user: manager1
+samba_user_password: redhat

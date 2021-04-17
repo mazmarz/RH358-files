@@ -1,0 +1,34 @@
+---
+- name: Ensure /data_prod is not mounted
+  hosts: initiators
+  become: true
+
+  tasks:
+    - name: the /data_prod file system is unmounted
+      mount:
+        path: /data_prod
+        state: absent
+
+    - name: the iSCSI target is disconnected
+      open_iscsi:
+        portal: 172.25.250.12
+        port: '3260'
+        target: iqn.2014-06.com.example:rack1
+        discover: no
+        login: no
+        auto_node_startup: no
+      ignore_errors: yes
+
+    - name: the iscsi-initiator-utils package is not installed
+      yum:
+        name: iscsi-initiator-utils
+        state: absent
+
+    - name: the iSCSI configuration files are not present
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/iscsi
+        - /var/lib/iscsi
+        - /var/lock/iscsi

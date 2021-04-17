@@ -1,0 +1,9 @@
+[global]
+        workgroup = MANAGERGROUP
+        server min protocol = SMB3
+        smb encrypt = required
+
+[{{ share_name }}]
+        path = {{ shared_dir }}
+        valid users = {{ samba_usermount }}, @{{ allowed_group }}
+        write list = @{{ allowed_group }}

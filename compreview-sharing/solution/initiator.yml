@@ -1,0 +1,56 @@
+---
+- name: Ensure /data_prod is mounted from serverc iSCSI target
+  hosts: initiators
+  become: true
+
+  tasks:
+    - name: the iSCSI initiator software is installed
+      yum:
+        name: iscsi-initiator-utils
+        state: present
+
+    - name: the IQN is set for the initiator
+      copy:
+        dest: /etc/iscsi/initiatorname.iscsi
+        content: "InitiatorName=iqn.2014-06.com.example:{{ ansible_facts['hostname'] }}\n"
+        mode: '644'
+        owner: root
+        group: root
+      notify: restart iscsid
+
+    # Forces the handler to run so that the iscsid service is restarted
+    # and is aware of the new initiator IQN
+    - meta: flush_handlers
+
+    - name: the iSCSI target is discovered and available
+      open_iscsi:
+        portal: 172.25.250.12
+        port: '3260'
+        target: iqn.2014-06.com.example:rack1
+        discover: yes
+        login: yes
+      register: target
+
+    - name: display the discovered devices
+      debug:
+        msg: The new device is {{ target['devicenodes'][0] }}
+
+    - name: the new device is formatted and mounted under /data_prod
+      include_role:
+        name: rhel-system-roles.storage
+      vars:
+        storage_volumes:
+          - name: devdata
+            state: present
+            type: disk
+            disks:
+              - "{{ target['devicenodes'][0] }}"
+            mount_point: /data_prod
+            fs_type: ext4
+            mount_options: '_netdev'
+
+  handlers:
+    - name: restart iscsid
+      service:
+        name: iscsid
+        state: restarted

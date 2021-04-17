@@ -1,0 +1,8 @@
+[servers]
+serverc.lab.example.com
+
+[clients]
+servera.lab.example.com
+
+[initiators]
+servera.lab.example.com

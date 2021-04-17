@@ -1,0 +1,41 @@
+---
+- name: Access an SMB share
+  hosts: servera.lab.example.com
+  become: true
+  vars_files:
+   - smb_vars.yml
+
+  tasks:
+    - name: the package to mount SMB shares is installed
+      yum:
+        name: cifs-utils
+        state: present
+
+    - name: the Linux group for Samba users exists
+      group:
+        name: "{{ allowed_group }}"
+
+    - name: the Linux user for Samba exists
+      user:
+        name: "{{ samba_user }}"
+        password: "{{ samba_user_password | password_hash('sha512', 'secretsalt') }}"
+        groups:
+          - "{{ allowed_group }}"
+
+    - name: the credential file exists
+      copy:
+        content: "username={{ samba_usermount }}\n\
+                  password={{ samba_passmount }}\n"
+        dest: /etc/samba/creds.txt
+        owner: root
+        group: root
+        mode: '0600'
+      no_log: true
+
+    - name: the SMB share is mounted
+      mount:
+        path: "{{ mount_point }}"
+        src: "//serverc.lab.example.com/{{ share_name }}"
+        opts: "credentials=/etc/samba/creds.txt,multiuser,seal"
+        state: mounted
+        fstype: cifs

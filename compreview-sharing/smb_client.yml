@@ -1,0 +1,49 @@
+---
+- name: Access an SMB share
+  hosts: servera.lab.example.com
+  become: true
+  vars_files:
+   - smb_vars.yml
+
+  tasks:
+    - name: the package to mount SMB shares is installed
+      yum:
+        name: #FIXME: install the required package to mount SMB shares
+        state: present
+
+    - name: the Linux group for Samba users exists
+      group:
+        name: "{{ allowed_group }}"
+
+    - name: the Linux user for Samba exists
+      user:
+        name: "{{ samba_user }}"
+        password: "{{ samba_user_password | password_hash('sha512', 'secretsalt') }}"
+        groups:
+          - "{{ allowed_group }}"
+
+    - name: the credential file exists
+      copy:
+        #FIXME: create the /etc/samba/creds.txt credential file for the
+        #       multiuser mount option.
+        #       Use the sambamount user account with redhat for
+        #       the password.
+        content: "#FIXME#={{ samba_usermount }}\n                  #FIXME#={{ samba_passmount }}\n"
+        dest: #FIXME#
+        owner: root
+        group: root
+        mode: '0600'
+      no_log: true
+
+    - name: the SMB share is mounted
+      mount:
+        #FIXME: persistently mount the managerdata SMB share from
+        #       serverc.lab.example.com into the /managers_reports
+        #       directory.
+        #       Use the credential file, the multiuser option, and activate
+        #       traffic encryption.
+        path: #FIXME#
+        src: #FIXME#
+        opts: #FIXME#
+        state: mounted
+        fstype: #FIXME#

@@ -1,0 +1,40 @@
+---
+- name: Ensure the iSCSI target is prepared
+  hosts: serverc.lab.example.com
+  become: true
+
+  tasks:
+    - name: the target command line tool is installed
+      yum:
+        name: #FIXME: install the required package
+        state: present
+
+    - name: the target service is started and enabled
+      service:
+        name: #FIXME: start and enable the service
+        state: started
+        enabled: yes
+
+    - name: the firewall is opened for iSCSI
+      firewalld:
+        service: #FIXME: enable the firewalld service for an iSCSI target
+        state: enabled
+        immediate: yes
+        permanent: yes
+
+    - name: check if the target already exists
+      command: targetcli ls /iscsi/iqn.2014-06.com.example:rack1
+      register: cmdout
+      ignore_errors: true
+      changed_when: false
+
+    - name: the iSCSI target is prepared
+      shell: |
+        targetcli /backstores/block create rack1.disk1 /dev/vdb1
+        targetcli /iscsi create iqn.2014-06.com.example:rack1
+        targetcli /iscsi/iqn.2014-06.com.example:rack1/tpg1/acls create iqn.2014-06.com.example:servera
+        targetcli /iscsi/iqn.2014-06.com.example:rack1/tpg1/luns create /backstores/block/rack1.disk1
+        targetcli /iscsi/iqn.2014-06.com.example:rack1/tpg1/portals delete 0.0.0.0 3260
+        targetcli /iscsi/iqn.2014-06.com.example:rack1/tpg1/portals create 172.25.250.12 3260
+        targetcli saveconfig
+      when: cmdout.rc != 0

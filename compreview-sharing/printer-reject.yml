@@ -1,0 +1,19 @@
+---
+- name: Reject print jobs
+  hosts: servera.lab.example.com
+  become: true
+  vars:
+    queue_name: "office-printer"
+
+  tasks:
+    - name: check if print queue already exists
+      command: lpstat -p "{{ queue_name }}"
+      register: cmdout
+      ignore_errors: true
+      changed_when: false
+
+    - name: print jobs are rejected
+      #FIXME: reject jobs for the {{ queue_name}} queue with the
+      #       message: Printer on Fire
+      command: #FIXME#
+      when: cmdout.rc == 0

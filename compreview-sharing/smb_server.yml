@@ -1,0 +1,100 @@
+---
+- name: Share a directory with SMB
+  hosts: serverc.lab.example.com
+  become: true
+  vars_files:
+    - smb_vars.yml
+
+  tasks:
+    - name: the package for a Samba server is installed
+      yum:
+        name: #FIXME: install the required package for a Samba server
+        state: present
+
+    - name: the Linux group for Samba users exists
+      group:
+        name: "{{ allowed_group }}"
+
+    - name: the Linux user for Samba exists
+      user:
+        name: "{{ samba_user }}"
+        password: "{{ samba_user_password | password_hash('sha512', 'secretsalt') }}"
+        groups:
+          - "{{ allowed_group }}"
+
+    - name: the Linux user is in Samba database
+      command: smbpasswd -s -a {{ samba_user }}
+      args:
+        stdin: "{{ samba_user_password }}\n{{ samba_user_password }}"
+
+    - name: the Linux user for Samba mount exists
+      user:
+        name: "{{ samba_usermount }}"
+        shell: /sbin/nologin
+        create_home: no
+        system: yes
+
+    - name: the Samba user for Samba mount exists
+      command: smbpasswd -s -a {{ samba_usermount }}
+      args:
+        stdin: "{{ samba_passmount }}\n{{ samba_passmount }}"
+
+    - name: the directory exists
+      file:
+        #FIXME: create the /srv/managers directory as follows:
+        #             Directory ownership: sambamount
+        #       Directory group ownership: managers
+        #                    Owner access: read
+        #                    Group access: read/write
+        #              Other users access: none
+        #       All contents created in the directory must automatically
+        #       belong to the managers group.
+        #       Set the correct SELinux context type.
+        path: #FIXME#
+        owner: #FIXME#
+        group: #FIXME#
+        mode: #FIXME#
+        state: directory
+        setype: #FIXME#
+
+
+    - name: the directory is shared
+      template:
+        #FIXME: edit templates/smb.conf.j2 to declare the /srv/managers
+        #       directory as an SMB share as follows:
+        #                          Work group: MANAGERGROUP
+        #        SMB minimum protocol version: 3
+        #                  Traffic encryption: Always required
+        #                          Share name: managerdata
+        #                   Access allowed to: sambamount and the
+        #                                      members of the managers group
+        #                   Read/write access: Members of the managers group
+        #       For your convenience, the default Samba configuration file is
+        #       available under the templates/ directory but must be updated
+        #       according to the preceding requirements.
+        src: templates/smb.conf.j2
+        dest: /etc/samba/smb.conf
+        owner: root
+        group: root
+        mode: '0644'
+        setype: samba_etc_t
+      notify: reload smb
+
+    - name: the SMB service is started and enabled
+      service:
+        name: #FIXME: the service must be started and enabled
+        state: started
+        enabled: yes
+
+    - name: the firewall is opened for SMB
+      firewalld:
+        service: #FIXME: configure the firewall to allow SMB traffic
+        state: enabled
+        immediate: yes
+        permanent: yes
+
+  handlers:
+    - name: reload smb
+      service:
+        name: #FIXME: the service must be reloaded
+        state: reloaded

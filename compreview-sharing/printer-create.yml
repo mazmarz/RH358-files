@@ -1,0 +1,40 @@
+---
+- name: Install CUPS and create a print queue
+  hosts: servera.lab.example.com
+  become: true
+  vars:
+    queue_name: "office-printer"
+    device_uri: "ipp://serverc.lab.example.com:631/printers/rht-printer"
+
+  tasks:
+    - name: the package for creating print queues is installed
+      yum:
+        name: #FIXME#
+        state: present
+
+    - name: the printing service is running and enabled
+      service:
+        name: #FIXME#
+        state: started
+        enabled: yes
+
+    - name: check if print queue already exists
+      command: lpstat -p "{{ queue_name }}"
+      register: cmdout
+      ignore_errors: true
+      changed_when: false
+
+    - name: the print queue exists
+      #FIXME: declare the {{ queue_name}} queue with {{ device_uri }} for the
+      #       IPP Everywhere printer. Enable the printer.
+      command: #FIXME#
+      when: cmdout.rc != 0
+
+    - name: check default printer
+      command: lpstat -d
+      register: curr_dest
+      changed_when: false
+
+    - name: the new print queue is the default queue
+      command: #FIXME: define the {{ queue_name }} queue as the default printer
+      when: curr_dest['stdout'] | regex_replace('^(.*):.') != queue_name
